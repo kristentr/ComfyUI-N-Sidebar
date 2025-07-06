@@ -664,7 +664,7 @@ async def proxy_models(request):
         }
 
         full_url = f"{api_url}?{urlencode(params)}"
-
+        #print(full_url)
         async with aiohttp.ClientSession() as session:
             async with session.get(full_url, headers=headers) as response:
                 response_data = await response.json()

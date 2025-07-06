@@ -628,7 +628,13 @@ setupWebSocket();
 
         const baseModelMultiSelectElement = document.getElementById('baseModelFilter');
         const baseModelHiddenInputs = baseModelMultiSelectElement.querySelectorAll('input[type="hidden"]');
-        const baseModelFilter = Array.from(baseModelHiddenInputs).map(input => input.value);
+        let baseModelFilter = Array.from(baseModelHiddenInputs).map(input => input.value);
+
+        let localBaseModelFilter = [];
+        if (baseModelFilter.length > 0) {
+            localBaseModelFilter = [...baseModelFilter]; // Salva per il filtraggio locale
+            baseModelFilter = []; // Rimuovi per la richiesta API
+        }
 
         const sortOption = document.getElementById('sortOption').value;
         const periodOption = document.getElementById('periodOption').value;
@@ -669,7 +675,7 @@ setupWebSocket();
 
         // Limit results to 10 and set pagination to first page
         params.append("limit", 100);
-        params.append("page", 1);
+        //params.append("page", 1);
 
         apiUrl += params.toString();
 
@@ -694,6 +700,14 @@ setupWebSocket();
 
             // Render the results
             data.items.forEach(async result => {
+                // Applica il filtro locale per baseModels se presente
+                if (localBaseModelFilter.length > 0) {
+                    const resultBaseModel = result.modelVersions[0]?.baseModel;
+                    if (!resultBaseModel || !localBaseModelFilter.includes(resultBaseModel)) {
+                        return; // Salta questa card se non corrisponde al filtro locale
+                    }
+                }
+
                 const card = document.createElement('div');
                 card.className = 'card';
                 //card.id = result.id;
